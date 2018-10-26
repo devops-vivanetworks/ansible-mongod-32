@@ -1,0 +1,11 @@
+---
+
+mongodb_service_name: mongod
+mongodb_user: mongodb
+mongodb_group: mongodb
+mongodb_packages:
+  - "mongodb-org={{ mongodb_version }}"
+  - "mongodb-org-server={{ mongodb_version }}"
+  - "mongodb-org-shell={{ mongodb_version }}"
+  - "mongodb-org-mongos={{ mongodb_version }}"
+  - "mongodb-org-tools={{ mongodb_version }}"

@@ -1,0 +1,15 @@
+---
+
+mongodb_version: 3.2.21
+mongodb_port: 27017
+mongodb_bind_ip: 0.0.0.0
+mongodb_dbpath: /var/lib/mongodb
+mongodb_logpath: /var/log/mongodb/mongod.log
+mongodb_keyfile_path: /etc/mongodb_keyfile
+mongodb_storage_engine: "wiredTiger"
+mongodb_journal_enabled: true
+mongodb_profiling_threshold: 100
+mongodb_profiling_mode: "off"
+mongodb_enable_localhost_auth_bypass: true
+mongodb_is_arbiter: false
+mongodb_authorization_enabled: true

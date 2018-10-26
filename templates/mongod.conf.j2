@@ -1,0 +1,53 @@
+storage:
+  dbPath: "{{ mongodb_dbpath }}"
+  directoryPerDB: true
+  engine: "{{ mongodb_storage_engine }}"
+  journal:
+{% if mongodb_is_arbiter or not mongodb_journal_enabled %}
+    enabled: false
+{% else %}
+    enabled: true
+{% endif %}
+{% if mongodb_is_arbiter %}
+  smallFiles: true
+{% endif %}
+{% if mongodb_storage_engine == "wiredTiger" %}
+  wiredTiger:
+    engineConfig:
+      directoryForIndexes: true
+{% endif %}
+net:
+{% if mongodb_bind_ip is defined %}
+  bindIp: {{ mongodb_bind_ip }}
+{% endif %}
+  port: {{ mongodb_port }}
+security:
+{% if mongodb_authorization_enabled %}
+  authorization: enabled
+{% else %}
+  authorization: disabled
+{% endif %}
+{% if mongodb_keyfile_content is defined or mongodb_keyfile is defined %}
+  clusterAuthMode: keyFile
+  keyFile: {{ mongodb_keyfile_path }}
+{% endif %}
+{% if not mongodb_enable_localhost_auth_bypass %}
+setParameter:
+  enableLocalhostAuthBypass: false
+{% endif %}
+systemLog:
+  destination: file
+  path: "{{ mongodb_logpath }}"
+  logAppend: true
+  logRotate: reopen
+  timeStampFormat: iso8601-utc
+{% if mongodb_repl_set_name is defined %}
+replication:
+{% if mongodb_repl_oplog_size is defined %}
+  oplogSizeMB: {{ mongodb_repl_oplog_size }}
+{% endif %}
+  replSetName: {{ mongodb_repl_set_name }}
+{% endif %}
+operationProfiling:
+  slowOpThresholdMs: {{ mongodb_profiling_threshold }}
+  mode: {{ mongodb_profiling_mode }}

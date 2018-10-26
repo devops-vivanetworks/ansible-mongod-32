@@ -1,0 +1,74 @@
+---
+
+- block:
+    - name: add mongodb key
+      apt_key:
+        keyserver: keyserver.ubuntu.com
+        id: EA312927
+        state: present
+
+    - name: add mongodb repository for v3.2.X
+      apt_repository:
+        repo: 'deb http://repo.mongodb.org/apt/{{ ansible_distribution|lower }} {{ansible_distribution_release }}/mongodb-org/3.2 multiverse'
+        state: present
+
+    - name: create mongodb configuration
+      template:
+        src: mongod.conf.j2
+        dest: /etc/mongod.conf
+        owner: root
+        group: root
+        mode: 0644
+      notify: restart mongodb
+
+    - name: install mongodb packages
+      apt:
+        name: "{{ item }}"
+        state: present
+        update_cache: yes
+        cache_valid_time: "{{ apt_cache_valid_time | default(omit) }}"
+      with_items: "{{ mongodb_packages }}"
+
+    - name: copy mongodb replication keyfile
+      copy:
+        dest: "{{ mongodb_keyfile_path }}"
+        owner: "{{ mongodb_user }}"
+        group: "{{ mongodb_group }}"
+        mode: 0600
+        src: "{{ mongodb_keyfile }}"
+      notify: restart mongodb
+      when: "{{ mongodb_keyfile is defined }}"
+
+    - name: copy mongodb replication keyfile content
+      copy:
+        dest: "{{ mongodb_keyfile_path }}"
+        owner: "{{ mongodb_user }}"
+        group: "{{ mongodb_group }}"
+        mode: 0600
+        content: "{{ mongodb_keyfile_content }}"
+      notify: restart mongodb
+      when: "{{ mongodb_keyfile_content is defined }}"
+
+    - name: add mongodb directories
+      file:
+        state: directory
+        path: "{{ item }}"
+        owner: "{{ mongodb_user }}"
+        group: "{{ mongodb_group }}"
+        mode: 0755
+      with_items:
+        - "{{ mongodb_dbpath }}"
+        - "{{ mongodb_logpath | dirname }}"
+
+    - name: ensure mongodb service is running and enabled on boot
+      service:
+        name: "{{ mongodb_service_name }}"
+        enabled: yes
+        state: started
+
+    - meta: flush_handlers
+
+  become: true
+  become_method: sudo
+  tags:
+    - mongodb-3.2

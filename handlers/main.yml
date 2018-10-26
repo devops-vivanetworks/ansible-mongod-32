@@ -1,0 +1,10 @@
+---
+# handlers file for mongodb
+
+- name: restart mongodb
+  become: true
+  become_method: sudo
+  service:
+    name: "{{ mongodb_service_name }}"
+    state: restarted
+  tags: mongodb
